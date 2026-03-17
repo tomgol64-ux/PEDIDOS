@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Pedidos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+    }
+    .produto {
+      background: white;
+      border: 1px solid #ddd;
+      margin: 10px;
+      padding: 15px;
+      width: 200px;
+      text-align: center;
+      border-radius: 8px;
+    }
+    .produto img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    .produto button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .carrinho {
+      position: fixed;
+      right: 20px;
+      top: 80px;
+      background: white;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      width: 250px;
+    }
+    .carrinho h3 {
+      margin-top: 0;
+    }
+    .carrinho-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .carrinho button {
+      background: #f44336;
+      border: none;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Sistema de Pedidos</h1>
+</header>
+
+<div class="container" id="produtos"></div>
+
+<div class="carrinho" id="carrinho">
+  <h3>Meu Carrinho</h3>
+  <div id="carrinho-itens"></div>
+  <strong>Total: R$ <span id="total">0</span></strong>
+  <button onclick="finalizarPedido()">Finalizar Pedido</button>
+</div>
+
+<script>
+  const produtos = [
+    {id: 1, nome: "Hambúrguer", preco: 20, img: "https://via.placeholder.com/200x150"},
+    {id: 2, nome: "Pizza", preco: 35, img: "https://via.placeholder.com/200x150"},
+    {id: 3, nome: "Refrigerante", preco: 8, img: "https://via.placeholder.com/200x150"}
+  ];
+
+  const carrinho = [];
+
+  function mostrarProdutos() {
+    const container = document.getElementById('produtos');
+    container.innerHTML = '';
+    produtos.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'produto';
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.nome}">
+        <h4>${p.nome}</h4>
+        <p>R$ ${p.preco}</p>
+        <button onclick="adicionarAoCarrinho(${p.id})">Adicionar</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function adicionarAoCarrinho(id) {
+    const produto = produtos.find(p => p.id === id);
+    carrinho.push(produto);
+    atualizarCarrinho();
+  }
+
+  function removerDoCarrinho(index) {
+    carrinho.splice(index, 1);
+    atualizarCarrinho();
+  }
+
+  function atualizarCarrinho() {
+    const carrinhoItens = document.getElementById('carrinho-itens');
+    const totalElem = document.getElementById('total');
+    carrinhoItens.innerHTML = '';
+    let total = 0;
+    carrinho.forEach((item, index) => {
+      total += item.preco;
+      const div = document.createElement('div');
+      div.className = 'carrinho-item';
+      div.innerHTML = `
+        ${item.nome} - R$ ${item.preco} 
+        <button onclick="removerDoCarrinho(${index})">X</button>
+      `;
+      carrinhoItens.appendChild(div);
+    });
+    totalElem.innerText = total;
+  }
+
+  function finalizarPedido() {
+    if (carrinho.length === 0) {
+      alert("Carrinho vazio!");
+      return;
+    }
+    alert("Pedido finalizado!\nTotal: R$ " + carrinho.reduce((sum, item) => sum + item.preco, 0));
+    carrinho.length = 0;
+    atualizarCarrinho();
+  }
+
+  mostrarProdutos();
+</script>
+
+</body>
+</html>
+
+
+function finalizarPedido() {
+    if (carrinho.length === 0) {
+        alert("Carrinho vazio!");
+        return;
+    }
+    let mensagem = "Olá! Gostaria de fazer o pedido:\n";
+    carrinho.forEach(item => {
+        mensagem += `- ${item.nome} R$ ${item.preco}\n`;
+    });
+    let total = carrinho.reduce((sum, item) => sum + item.preco, 0);
+    mensagem += `Total: R$ ${total}`;
+    
+    // Transformar em link do WhatsApp
+    const telefone = "5511999999999"; // Substitua pelo seu número com DDD
+    const url = `https://api.whatsapp.com/send?phone=${telefone}&text=${encodeURIComponent(mensagem)}`;
+    window.open(url, "_blank");
+}
